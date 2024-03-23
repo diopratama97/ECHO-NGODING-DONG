@@ -3,13 +3,15 @@ package models
 import (
 	"net/http"
 	"test-echo/db"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type Users struct {
 	Id      int    `json:"id"`
-	Name    string `json:"name"`
-	Address string `json:"address"`
-	Telp    string `json:"telp"`
+	Name    string `json:"name" validate:"required"`
+	Address string `json:"address" validate:"required" `
+	Telp    string `json:"telp" validate:"required"`
 }
 
 func FecthAllUsers() (Response, error) {
@@ -47,6 +49,19 @@ func FecthAllUsers() (Response, error) {
 
 func CreateUsers(name, address, telp string) (Response, error) {
 	var res Response
+
+	v := validator.New()
+
+	usr := Users{
+		Name:    name,
+		Address: address,
+		Telp:    telp,
+	}
+
+	err := v.Struct(usr)
+	if err != nil {
+		return res, err
+	}
 
 	conn := db.CreateConn()
 

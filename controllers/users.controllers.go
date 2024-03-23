@@ -19,24 +19,24 @@ func FecthAllUsers(c echo.Context) error {
 }
 
 func CreateUsers(c echo.Context) error {
-	// name := c.FormValue("name")
-	// address := c.FormValue("address")
-	// telp := c.FormValue("telp")
+	name := c.FormValue("name")
+	address := c.FormValue("address")
+	telp := c.FormValue("telp")
 
-	payload := make(map[string]interface{})
-	err := json.NewDecoder(c.Request().Body).Decode(&payload)
+	// payload := make(map[string]interface{})
+	// err := json.NewDecoder(c.Request().Body).Decode(&payload)
 
-	if err != nil {
-		return err
-	}
+	// if err != nil {
+	// 	return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	// }
 
-	name := payload["name"].(string)
-	address := payload["address"].(string)
-	telp := payload["telp"].(string)
+	// name := payload["name"].(string)
+	// address := payload["address"].(string)
+	// telp := payload["telp"].(string)
 
 	result, err := models.CreateUsers(name, address, telp)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, result)
