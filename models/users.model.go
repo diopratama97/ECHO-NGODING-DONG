@@ -19,7 +19,7 @@ func FecthAllUsers() (Response, error) {
 
 	conn := db.CreateConn()
 
-	sqlQuery := "SELECT * FROM users"
+	sqlQuery := "SELECT id,name,address,telp FROM users"
 
 	rows, err := conn.Query(sqlQuery)
 
@@ -74,6 +74,90 @@ func CreateUsers(name, address, telp string) (Response, error) {
 	res.Data = map[string]int64{
 		"last_id": lastInsertedId,
 	}
+
+	return res, nil
+}
+
+func UpdateUsers(id int, name string, address string, telp string) (Response, error) {
+	var res Response
+
+	conn := db.CreateConn()
+
+	sqlQuery := "UPDATE users SET name = ?, address = ?, telp = ? WHERE id = ?"
+
+	stmt, err := conn.Prepare(sqlQuery)
+
+	if err != nil {
+		return res, err
+	}
+
+	result, err := stmt.Exec(name, address, telp, id)
+
+	if err != nil {
+		return res, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+
+	if err != nil {
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Success"
+	res.Data = map[string]int64{
+		"row_affected": rowsAffected,
+	}
+
+	return res, nil
+}
+
+func DeleteUsers(id int) (Response, error) {
+	var res Response
+
+	conn := db.CreateConn()
+
+	sqlQuery := "DELETE FROM users WHERE id = ?"
+
+	stmt, err := conn.Prepare(sqlQuery)
+	if err != nil {
+		return res, err
+	}
+
+	result, err := stmt.Exec(id)
+	if err != nil {
+		return res, err
+	}
+
+	rowAffected, err := result.RowsAffected()
+	if err != nil {
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Success"
+	res.Data = rowAffected
+
+	return res, nil
+}
+
+func DetailUsers(id int) (Response, error) {
+	var res Response
+	var obj Users
+
+	conn := db.CreateConn()
+
+	sqlQuery := "SELECT id,name,address,telp FROM users WHERE id = ?"
+
+	err := conn.QueryRow(sqlQuery, id).Scan(&obj.Id, &obj.Name, &obj.Address, &obj.Telp)
+
+	if err != nil {
+		return res, err
+	}
+
+	res.Status = http.StatusOK
+	res.Message = "Success"
+	res.Data = obj
 
 	return res, nil
 }
